@@ -11,38 +11,30 @@ class Paper {
   velX = 0;
   velY = 0;
   rotation = Math.random() * 30 - 15;
-  rotating = false;
 
   init(paper) {
-    // Event listener for mouse and touch move
     const moveHandler = (e) => {
       e.preventDefault();
       const x = e.touches ? e.touches[0].clientX : e.clientX;
       const y = e.touches ? e.touches[0].clientY : e.clientY;
 
-      if (!this.rotating) {
+      if (this.holdingPaper) {
         this.velX = x - this.prevX;
         this.velY = y - this.prevY;
-      }
-
-      if (this.holdingPaper) {
         this.currentX += this.velX;
         this.currentY += this.velY;
 
-        paper.style.transform = `translateX(${this.currentX}px) translateY(${this.currentY}px) rotateZ(${this.rotation}deg)`;
+        paper.style.transform = `translate(${this.currentX}px, ${this.currentY}px) rotate(${this.rotation}deg)`;
         this.prevX = x;
         this.prevY = y;
       }
     };
 
-    // Event listener for mouse and touch start
     const startHandler = (e) => {
       if (this.holdingPaper) return;
       this.holdingPaper = true;
 
-      paper.style.zIndex = highestZ;
-      highestZ += 1;
-
+      paper.style.zIndex = highestZ++;
       const x = e.touches ? e.touches[0].clientX : e.clientX;
       const y = e.touches ? e.touches[0].clientY : e.clientY;
 
@@ -52,26 +44,19 @@ class Paper {
       this.prevY = y;
     };
 
-    // Event listener for mouse and touch end
     const endHandler = () => {
       this.holdingPaper = false;
-      this.rotating = false;
     };
 
-    // Mouse and touch events
-    paper.addEventListener('mousemove', moveHandler);
-    paper.addEventListener('touchmove', moveHandler);
-    
-    paper.addEventListener('mousedown', startHandler);
+    // Attach event listeners for touch
     paper.addEventListener('touchstart', startHandler);
-
-    window.addEventListener('mouseup', endHandler);
+    paper.addEventListener('touchmove', moveHandler);
     window.addEventListener('touchend', endHandler);
   }
 }
 
 const papers = Array.from(document.querySelectorAll('.paper'));
-papers.forEach(paper => {
+papers.forEach((paper) => {
   const p = new Paper();
   p.init(paper);
 });
